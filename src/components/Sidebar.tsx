@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useMediaPlanStore } from '@/lib/store';
+import { importLegacyPlan, isLegacyPlanFile } from '@/lib/legacyImport';
 import { Field, Select, TextInput } from '@/components/Field';
 
 export function Sidebar() {
@@ -34,6 +35,10 @@ export function Sidebar() {
   async function loadPlanJson(file: File) {
     try {
       const data = JSON.parse(await file.text());
+      if (isLegacyPlanFile(data)) {
+        loadPlan(importLegacyPlan(data));
+        return;
+      }
       if (!data.plan || !Array.isArray(data.scenarios)) throw new Error('Not a valid media plan file.');
       loadPlan(data);
     } catch (e) {
